@@ -1,46 +1,64 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {ToastrService} from 'ngx-toastr';
-
-import {Observable} from 'rxjs';
-import {Router} from '@angular/router';
-import {OperationDataResult, OperationResult} from 'src/app/common/models/operation.models';
-import {BaseService} from 'src/app/common/services/base.service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
-  InstallationPnRequestModel,
-  InstallationsPnModel,
+  OperationDataResult,
+  OperationResult,
+} from 'src/app/common/models/operation.models';
+import {
   InstallationPnCreateModel,
+  InstallationPnModel,
+  InstallationPnRequestModel,
   InstallationPnUpdateModel,
-  InstallationPnModel
+  InstallationsPnModel,
 } from '../models';
+import { ApiBaseService } from 'src/app/common/services';
 
 export let TrashInspectionPnInstallationMethods = {
   Installations: 'api/trash-inspection-pn/installations',
 };
 
 @Injectable()
-export class TrashInspectionPnInstallationsService extends BaseService {
-  constructor(private _http: HttpClient, router: Router, toastrService: ToastrService) {
-    super(_http, router, toastrService);
+export class TrashInspectionPnInstallationsService {
+  constructor(private apiBaseService: ApiBaseService) {}
+
+  getAllInstallations(
+    model: InstallationPnRequestModel
+  ): Observable<OperationDataResult<InstallationsPnModel>> {
+    return this.apiBaseService.get(
+      TrashInspectionPnInstallationMethods.Installations,
+      model
+    );
   }
 
-  getAllInstallations(model: InstallationPnRequestModel): Observable<OperationDataResult<InstallationsPnModel>> {
-    return this.get(TrashInspectionPnInstallationMethods.Installations, model);
+  getSingleInstallation(
+    installationId: number
+  ): Observable<OperationDataResult<InstallationPnModel>> {
+    return this.apiBaseService.get(
+      TrashInspectionPnInstallationMethods.Installations + '/' + installationId
+    );
   }
 
-  getSingleInstallation(installationId: number): Observable<OperationDataResult<InstallationPnModel>> {
-    return this.get(TrashInspectionPnInstallationMethods.Installations + '/' + installationId);
+  updateInstallation(
+    model: InstallationPnUpdateModel
+  ): Observable<OperationResult> {
+    return this.apiBaseService.put(
+      TrashInspectionPnInstallationMethods.Installations,
+      model
+    );
   }
 
-  updateInstallation(model: InstallationPnUpdateModel): Observable<OperationResult> {
-    return this.put(TrashInspectionPnInstallationMethods.Installations, model);
-  }
-
-  createInstallation(model: InstallationPnCreateModel): Observable<OperationResult> {
-    return this.post(TrashInspectionPnInstallationMethods.Installations, model);
+  createInstallation(
+    model: InstallationPnCreateModel
+  ): Observable<OperationResult> {
+    return this.apiBaseService.post(
+      TrashInspectionPnInstallationMethods.Installations,
+      model
+    );
   }
 
   deleteInstallation(installationId: number): Observable<OperationResult> {
-    return this.delete(TrashInspectionPnInstallationMethods.Installations + '/' + installationId);
+    return this.apiBaseService.delete(
+      TrashInspectionPnInstallationMethods.Installations + '/' + installationId
+    );
   }
 }

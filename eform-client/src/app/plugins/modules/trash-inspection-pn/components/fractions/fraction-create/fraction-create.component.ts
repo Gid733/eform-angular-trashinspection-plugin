@@ -1,19 +1,26 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {debounceTime, switchMap} from 'rxjs/operators';
-import {TrashInspectionPnFractionsService} from '../../../services';
-import {SiteNameDto} from '../../../../../../common/models/dto';
-import {DeployModel} from '../../../../../../common/models/eforms';
-import {EFormService} from '../../../../../../common/services/eform';
-import {SitesService} from '../../../../../../common/services/advanced';
-import {AuthService} from '../../../../../../common/services/auth';
-import {FractionPnModel} from '../../../models/fraction';
-import {TemplateListModel, TemplateRequestModel} from 'src/app/common/models/eforms';
-
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
+import { debounceTime, switchMap } from 'rxjs/operators';
+import { TrashInspectionPnFractionsService } from '../../../services';
+import { SiteNameDto, DeployModel } from 'src/app/common/models';
+import { SitesService, EFormService } from 'src/app/common/services';
+import { FractionPnModel } from '../../../models';
+import {
+  TemplateListModel,
+  TemplateRequestModel,
+} from 'src/app/common/models/eforms';
+import { AuthStateService } from 'src/app/common/store';
 
 @Component({
   selector: 'app-trash-inspection-pn-fraction-create',
   templateUrl: './fraction-create.component.html',
-  styleUrls: ['./fraction-create.component.scss']
+  styleUrls: ['./fraction-create.component.scss'],
 })
 export class FractionCreateComponent implements OnInit {
   @ViewChild('frame') frame;
@@ -28,22 +35,25 @@ export class FractionCreateComponent implements OnInit {
   typeahead = new EventEmitter<string>();
 
   get userClaims() {
-    return this.authService.userClaims;
+    return this.authStateService.currentUserClaims;
   }
-  constructor(private trashInspectionPnFractionsService: TrashInspectionPnFractionsService,
-              private sitesService: SitesService,
-              private authService: AuthService,
-              private eFormService: EFormService,
-              private cd: ChangeDetectorRef) {
+
+  constructor(
+    private trashInspectionPnFractionsService: TrashInspectionPnFractionsService,
+    private sitesService: SitesService,
+    private authStateService: AuthStateService,
+    private eFormService: EFormService,
+    private cd: ChangeDetectorRef
+  ) {
     this.typeahead
       .pipe(
         debounceTime(200),
-        switchMap(term => {
+        switchMap((term) => {
           this.templateRequestModel.nameFilter = term;
           return this.eFormService.getAll(this.templateRequestModel);
         })
       )
-      .subscribe(items => {
+      .subscribe((items) => {
         this.templatesModel = items.model;
         this.cd.markForCheck();
       });
@@ -54,26 +64,24 @@ export class FractionCreateComponent implements OnInit {
   }
 
   createInstallation() {
-    // debugger;
-    this.trashInspectionPnFractionsService.createFraction(this.newFractionModel).subscribe((data) => {
-      // debugger;
-      if (data && data.success) {
-        this.onFractionCreated.emit();
-        // this.submitDeployment();
-        this.newFractionModel = new FractionPnModel();
-        this.frame.hide();
-      }
-    });
+    this.trashInspectionPnFractionsService
+      .createFraction(this.newFractionModel)
+      .subscribe((data) => {
+        if (data && data.success) {
+          this.onFractionCreated.emit();
+          // this.submitDeployment();
+          this.newFractionModel = new FractionPnModel();
+          this.frame.hide();
+        }
+      });
   }
-
 
   loadAllSites() {
     if (this.userClaims.eformsPairingRead) {
-      this.sitesService.getAllSitesForPairing().subscribe(operation => {
+      this.sitesService.getAllSitesForPairing().subscribe((operation) => {
         if (operation && operation.success) {
           this.sitesDto = operation.model;
         }
-
       });
     }
   }
@@ -85,7 +93,6 @@ export class FractionCreateComponent implements OnInit {
   }
 
   onSelectedChanged(e: any) {
-    // debugger;
     this.newFractionModel.eFormId = e.id;
   }
   // submitDeployment() {

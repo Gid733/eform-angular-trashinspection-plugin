@@ -1,32 +1,39 @@
 import { Injectable } from '@angular/core';
-import {Observable} from 'rxjs';
-import {OperationDataResult, OperationResult} from '../../../../common/models';
-import {BaseService} from '../../../../common/services/base.service';
-import {HttpClient} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {ToastrService} from 'ngx-toastr';
-import {TrashInspectionBaseSettingsModel} from '../models/trash-inspection-base-settings.model';
+import { Observable } from 'rxjs';
+import {
+  OperationDataResult,
+  OperationResult,
+} from '../../../../common/models';
+import { TrashInspectionBaseSettingsModel } from '../models';
+import { ApiBaseService } from 'src/app/common/services';
 
 export let TrashInspectionSettingsMethods = {
   TrashInspectionSettings: 'api/trash-inspection-pn/settings',
-  TrashInspectionToken: 'api/trash-inspection-pn/token'
-
+  TrashInspectionToken: 'api/trash-inspection-pn/token',
 };
 @Injectable()
-export class TrashInspectionPnSettingsService extends BaseService {
+export class TrashInspectionPnSettingsService {
+  constructor(private apiBaseService: ApiBaseService) {}
 
-  constructor(private _http: HttpClient, router: Router, toastrService: ToastrService) {
-    super(_http, router, toastrService);
+  getAllSettings(): Observable<
+    OperationDataResult<TrashInspectionBaseSettingsModel>
+  > {
+    return this.apiBaseService.get(
+      TrashInspectionSettingsMethods.TrashInspectionSettings
+    );
   }
-
-  getAllSettings(): Observable<OperationDataResult<TrashInspectionBaseSettingsModel>> {
-    return this.get(TrashInspectionSettingsMethods.TrashInspectionSettings);
-  }
-  updateSettings(model: TrashInspectionBaseSettingsModel): Observable<OperationResult> {
-    return this.post(TrashInspectionSettingsMethods.TrashInspectionSettings, model);
+  updateSettings(
+    model: TrashInspectionBaseSettingsModel
+  ): Observable<OperationResult> {
+    return this.apiBaseService.post(
+      TrashInspectionSettingsMethods.TrashInspectionSettings,
+      model
+    );
   }
 
   getToken(): Observable<OperationDataResult<string>> {
-    return this.get(TrashInspectionSettingsMethods.TrashInspectionToken);
+    return this.apiBaseService.get(
+      TrashInspectionSettingsMethods.TrashInspectionToken
+    );
   }
 }
